@@ -1,1 +1,17 @@
 
+services:
+  server:
+    image: gitea/gitea:latest
+    container_name: gitea
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+      - GITEA__database__DB_TYPE=sqlite3 # Simplified for demo/home use
+    restart: always
+    volumes:
+      - ${STORAGE_PATH}/gitea-data:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "${GIT_PORT}:3000"
+      - "${GIT_SSH_PORT}:22"
