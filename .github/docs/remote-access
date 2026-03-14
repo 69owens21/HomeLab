@@ -1,0 +1,20 @@
+# Remote Access & Zero-Trust Networking
+
+### Overview
+To enable secure, remote development for the **LabSync** capstone project from campus or off-site locations, this homelab utilizes **Tailscale**—a zero-config, WireGuard-based mesh VPN. This eliminates the need to expose any internal ports to the public internet while maintaining full access to the development pipeline.
+
+### Architecture & Subnet Routing
+Rather than installing the VPN client inside every individual Docker container, Tailscale is deployed directly on the Ubuntu 24.04 host machine configured as a **Subnet Router**. 
+
+* **Host Configuration:** IP Forwarding (`net.ipv4.ip_forward = 1`) is enabled at the kernel level.
+* **Advertised Routes:** The server advertises the `192.168.4.0/24` local subnet to the Tailscale network.
+* **DNS Handling:** The `--accept-dns=false` flag is strictly enforced on the host to ensure the local Pi-hole container remains the absolute authority for network-wide DNS resolution.
+
+### Security Posture
+This architecture adheres to several core security principles:
+1. **Zero Open Inbound Ports:** The hardware firewall/router has exactly zero ports forwarded to the internal network. All external communication is handled via outbound WireGuard tunnels.
+2. **Identity-Based Access:** The network is secured behind a primary Identity Provider (SSO), meaning access to the lab requires cryptographic key authentication tied to a specific user identity, mitigating unauthorized local network access.
+3. **Encrypted Transport:** All traffic between remote development machines (e.g., a MacBook on a public coffee shop Wi-Fi) and the internal Docker services (Gitea, Open WebUI, Portainer) is end-to-end encrypted.
+
+### Workflow Impact
+By routing traffic through the Tailscale mesh, local service discovery remains completely intact. Remote devices can still resolve internal URLs like `http://git.home` or `http://ai.home` seamlessly via the Nginx Proxy Manager, creating a frictionless developer experience regardless of physical location.
