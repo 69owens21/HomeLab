@@ -1,0 +1,19 @@
+services:
+  gluetun:
+    image: qmcgaw/gluetun:latest
+    container_name: gluetun
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - VPN_SERVICE_PROVIDER=mullvad
+      - VPN_TYPE=wireguard
+      - WIREGUARD_PRIVATE_KEY=your_mullvad_private_key_here
+      - WIREGUARD_ADDRESSES=your_mullvad_internal_ip_here
+      # Optional: Allow local network access
+      - FIREWALL_OUTBOUND_SUBNETS=192.168.0.0/16 
+    ports:
+      # Map ports for connected containers here (e.g., qBittorrent)
+      - 8080:8080
+      - 6881:6881
+      - 6881:6881/udp
+    restart: unless-stopped
